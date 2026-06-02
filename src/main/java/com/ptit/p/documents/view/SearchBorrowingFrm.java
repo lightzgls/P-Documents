@@ -5,7 +5,6 @@ import com.ptit.p.documents.model.Borrowing;
 import com.ptit.p.documents.model.BorrowedBook;
 import com.ptit.p.documents.model.User;
 import com.ptit.p.documents.view.AcceptBorrowingFrm;
-import com.ptit.p.documents.view.SearchMode;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -20,7 +19,6 @@ import java.time.LocalDate;
 
 public class SearchBorrowingFrm extends JFrame implements ActionListener {
     private User currentUser;
-    private SearchMode mode;
     private BorrowingDAO borrowingDAO;
 
     private JTextField txtStudentId;
@@ -44,11 +42,11 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
     private JButton btnAddFine;
     private JButton btnContinue;
     private JButton btnDetailBack;
-
+    private String mode;
     private Borrowing selectedBorrowing;
     private BorrowedBook selectedBorrowedBook;
 
-    public SearchBorrowingFrm(User user, SearchMode mode) {
+    public SearchBorrowingFrm(User user, String mode) {
         this.currentUser = user;
         this.mode = mode;
         this.borrowingDAO = new BorrowingDAO();
@@ -57,9 +55,9 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
 
     private void initComponents() {
         String title = "Tìm kiếm phiếu mượn";
-        if (mode == SearchMode.CONFIRM_BORROW) title = "Xử lý nhận sách";
-        if (mode == SearchMode.RETURN_BOOK) title = "Xử lý trả sách";
-        if (mode == SearchMode.CANCEL_BORROW) title = "Hủy đặt sách";
+        if (mode == "CONFIRM_BORROW") title = "Xử lý nhận sách";
+        if (mode == "RETURN_BOOK") title = "Xử lý trả sách";
+        if (mode == "CANCEL_BORROW") title = "Hủy đặt sách";
         setTitle(title);
         setSize(850, 550);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -108,8 +106,8 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
         
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         String btnSelectText = "Chọn phiếu";
-        if (mode == SearchMode.RETURN_BOOK) btnSelectText = "Chọn phiếu trả";
-        if (mode == SearchMode.CANCEL_BORROW) btnSelectText = "Chọn phiếu hủy";
+        if (mode == "RETURN_BOOK") btnSelectText = "Chọn phiếu trả";
+        if (mode == "CANCEL_BORROW") btnSelectText = "Chọn phiếu hủy";
         // btnSelect = new JButton(btnSelectText);
         
         btnBack = new JButton("Quay lại");
@@ -184,9 +182,9 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
 
                     selectedBorrowing = searchResults.get(selectedRow);
 
-                    if (mode == SearchMode.CONFIRM_BORROW) {
+                    if (mode == "CONFIRM_BORROW") {
                         new AcceptBorrowingFrm(currentUser, selectedBorrowing).setVisible(true);
-                    } else if (mode == SearchMode.CANCEL_BORROW) {
+                    } else if (mode == "CANCEL_BORROW") {
                         new ConfirmCancelFrm(selectedBorrowing, currentUser).setVisible(true);
                         SearchBorrowingFrm.this.dispose();
                     } else {
@@ -251,7 +249,7 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
                 String studentId = txtStudentId.getText().trim();
                 String studentName = txtStudentName.getText().trim();
 
-                if (mode == SearchMode.CONFIRM_BORROW || mode == SearchMode.CANCEL_BORROW) {
+                if (mode == "CONFIRM_BORROW" || mode == "CANCEL_BORROW") {
                     searchResults = borrowingDAO.searchBorrowing(studentId, studentName, "pending");
                 } else {
                     searchResults = borrowingDAO.searchBorrowing(studentId, studentName, "borrowed", "overdue");

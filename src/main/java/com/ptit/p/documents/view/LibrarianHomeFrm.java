@@ -93,17 +93,17 @@ public class LibrarianHomeFrm extends JFrame {
         });
 
         btnCancelBorrow.addActionListener(e -> {
-            new SearchBorrowingFrm(currentUser, SearchMode.CANCEL_BORROW).setVisible(true);
+            new SearchBorrowingFrm(currentUser, "CANCEL_BORROW").setVisible(true);
             
         });
 
         btnConfirmBorrowing.addActionListener(e -> {
-            new SearchBorrowingFrm(currentUser, SearchMode.CONFIRM_BORROW).setVisible(true);
+            new SearchBorrowingFrm(currentUser, "CONFIRM_BORROW").setVisible(true);
             
         });
 
         btnReturnBook.addActionListener(e -> {
-            new SearchBorrowingFrm(currentUser, SearchMode.RETURN_BOOK).setVisible(true);
+            new SearchBorrowingFrm(currentUser, "RETURN_BOOK").setVisible(true);
             
         });
 
