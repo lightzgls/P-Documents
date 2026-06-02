@@ -1,6 +1,8 @@
 package com.ptit.p.documents.dao;
 
+import java.util.ArrayList;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import com.ptit.p.documents.model.Book;
 import com.ptit.p.documents.model.BookItem;
