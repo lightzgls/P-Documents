@@ -1,0 +1,133 @@
+package com.ptit.p.documents.dao;
+
+import com.ptit.p.documents.model.Bill;
+import com.ptit.p.documents.model.BorrowedBook;
+import com.ptit.p.documents.model.BorrowedBookFine;
+import com.ptit.p.documents.model.Borrowing;
+import com.ptit.p.documents.model.Fine;
+import java.text.Normalizer;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import com.ptit.p.documents.model.User;
+
+public class BillDAO extends DAO {
+
+    public boolean createBill(Bill bill, User user) {
+        String sql = "INSERT INTO tblBill (paymentDate, note, paymentType, tblBorrowingID, tblUserID) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement statement = getCon().prepareStatement(sql,
+                        PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            statement.setDate(1, bill.getPaymentDate() != null ? java.sql.Date.valueOf(bill.getPaymentDate()) : null);
+            statement.setString(2, bill.getNote());
+            statement.setString(3, bill.getPaymentType());
+            statement.setInt(4, bill.getBorrowing().getId());
+            statement.setInt(5, user.getId());
+
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows == 0) {
+                return false;
+            }
+
+            try (java.sql.ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    bill.setId(generatedKeys.getInt(1));
+                } else {
+                    throw new SQLException("Saving bill failed, no ID obtained.");
+                }
+            }
+            return true;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public Bill calculateFine(Borrowing borrowing) {
+        if (borrowing == null) {
+            return null;
+        }
+
+        Bill bill = new Bill();
+        bill.setBorrowing(borrowing);
+        bill.setPaymentDate(LocalDate.now());
+
+        double overdueRatePerDay = 5000.0;
+        FineDAO fineDAO = new FineDAO();
+        List<Fine> fines = fineDAO.findAll();
+        for (Fine fine : fines) {
+            if (fine.getName() != null) {
+                String normalized = Normalizer.normalize(fine.getName(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+                normalized = normalized.toLowerCase();
+                if (normalized.contains("tra tre") || normalized.contains("qua han") || normalized.contains("overdue")) {
+                    overdueRatePerDay = fine.getFineRate();
+                    break;
+                }
+            }
+        }
+        int totalOverdueDays = 0;
+        double totalFine = 0.0;
+
+        List<BorrowedBook> borrowedBooks = borrowing.getBooks();
+        if (borrowedBooks != null) {
+            for (BorrowedBook bb : borrowedBooks) {
+                
+                if (bb.getExpectedReturnDate() != null) {
+                    long days = ChronoUnit.DAYS.between(bb.getExpectedReturnDate(), LocalDate.now());
+                    if (days > 0) {
+                        totalOverdueDays += (int) days;
+                        totalFine += days * overdueRatePerDay;
+                    }
+                }
+                
+                
+                Fine fineOverdue = new Fine();
+                fineOverdue.setName("Trả muộn");
+                fineOverdue.setFineRate(overdueRatePerDay);
+                
+                BorrowedBookFine overdueFine = new BorrowedBookFine();
+                overdueFine.setFine(fineOverdue);
+                overdueFine.setFineRate(overdueRatePerDay);
+                overdueFine.setTotalFine(totalFine);
+                bb.addBorrowedBookFine(overdueFine);
+                
+                
+                if (bb.getBorrowedBookFines() != null) {
+                    for (BorrowedBookFine fine : bb.getBorrowedBookFines()) {
+                        totalFine += fine.getFineRate();
+                    }
+                }
+            }
+        }
+
+        bill.setOverdueDay(totalOverdueDays);
+        bill.setFine(totalFine);
+        bill.setAmount(totalFine);
+        return bill;
+    }
+
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}
