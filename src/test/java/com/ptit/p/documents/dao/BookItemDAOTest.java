@@ -16,8 +16,8 @@ public class BookItemDAOTest {
       Book book = createTestBook("ISBN-TEST-03", "Test Book Item", "Test Author", "Test Genre",
               "Test Publisher", 2024, 9.99, "This is a test book item.", 5);
       bd.addBook(book);
-      BookItem item = new BookItem(5001, "good", "ISBN-TEST-03");
-      boolean result = bid.addBookItem(item);
+      BookItem item = new BookItem(5001, "good");
+      boolean result = bid.addBookItem(item, "ISBN-TEST-03");
       Assert.assertTrue(result);
 
       bid.deleteBookItem("ISBN-TEST-03");
@@ -26,8 +26,8 @@ public class BookItemDAOTest {
 
   @Test
   public void testAddBookItem_NotExistingISBN_Failure() {
-      BookItem item = new BookItem(5002, "good", "ISBN-TEST-04");
-      boolean result = bid.addBookItem(item);
+      BookItem item = new BookItem(5002, "good");
+      boolean result = bid.addBookItem(item, "ISBN-TEST-04");
       Assert.assertFalse(result);
   }
 
@@ -36,8 +36,8 @@ public class BookItemDAOTest {
       Book book = createTestBook("ISBN-TEST-05", "Test Book Item Delete", "Test Author", "Test Genre",
               "Test Publisher", 2024, 9.99, "This is a test book item for deletion.", 5);
       bd.addBook(book);
-      BookItem item = new BookItem(5003, "good", "ISBN-TEST-05");
-      bid.addBookItem(item);
+      BookItem item = new BookItem(5003, "good");
+      bid.addBookItem(item, "ISBN-TEST-05");
 
       boolean result = bid.deleteBookItem("ISBN-TEST-05");
       Assert.assertTrue(result);

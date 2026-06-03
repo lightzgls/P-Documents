@@ -123,7 +123,6 @@ public class BorrowingDAO extends DAO {
 
                                 BookItem bi = new BookItem();
                                 bi.setId(rsBooks.getInt("tblBookItemID"));
-                                bi.setBookISBN(rsBooks.getString("tblBookISBN"));
                                 bb.setBookItem(bi);
 
                                 Book book = new Book();
@@ -362,7 +361,6 @@ public class BorrowingDAO extends DAO {
 
                                 BookItem bi = new BookItem();
                                 bi.setId(rsBooks.getInt("tblBookItemID"));
-                                bi.setBookISBN(rsBooks.getString("tblBookISBN"));
                                 bb.setBookItem(bi);
 
                                 Book book = new Book();

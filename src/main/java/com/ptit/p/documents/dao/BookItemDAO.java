@@ -6,11 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class BookItemDAO extends DAO {
-    public boolean addBookItem(BookItem item) {
+    public boolean addBookItem(BookItem item, String bookISBN) {
         String sql = "INSERT INTO tblBookItem (status, tblBookISBN) VALUES (?, ?)";
         try (PreparedStatement ps = getCon().prepareStatement(sql)) {
             ps.setString(1, item.getStatus() != null ? item.getStatus() : "good");
-            ps.setString(2, item.getBookISBN());
+            ps.setString(2, bookISBN);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

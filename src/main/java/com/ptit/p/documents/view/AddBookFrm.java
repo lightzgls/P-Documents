@@ -280,8 +280,7 @@ public class AddBookFrm extends JFrame implements ActionListener {
                 for (int i = 0; i < copies; i++) {
                     BookItem item = new BookItem();
                     item.setStatus("good");
-                    item.setBookISBN(isbn);
-                    bookItemDAO.addBookItem(item);
+                    bookItemDAO.addBookItem(item, isbn);
                 }
             }
 

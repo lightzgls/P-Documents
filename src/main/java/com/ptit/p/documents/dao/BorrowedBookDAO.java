@@ -5,6 +5,7 @@ import com.ptit.p.documents.model.BorrowedBook;
 import com.ptit.p.documents.model.Borrowing;
 import com.ptit.p.documents.model.Student;
 import com.ptit.p.documents.model.BorrowedBookFine;
+import com.ptit.p.documents.model.Book;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,10 +34,12 @@ public class BorrowedBookDAO extends DAO {
                     BookItem bookItem = new BookItem();
                     bookItem.setId(resultSet.getInt("bookItemId"));
                     bookItem.setStatus(resultSet.getString("bookItemStatus"));
-                    bookItem.setBookISBN(resultSet.getString("bookISBN"));
 
                     BorrowedBook borrowedBook = new BorrowedBook();
                     borrowedBook.setId(resultSet.getInt("ID"));
+                    Book tempBook = new Book();
+                    tempBook.setISBN(resultSet.getString("bookISBN"));
+                    borrowedBook.setBook(tempBook);
                     borrowedBook.setExpectedReturnDate(resultSet.getTimestamp("expectedReturnDate") != null
                             ? resultSet.getTimestamp("expectedReturnDate").toLocalDateTime().toLocalDate()
                             : null);
