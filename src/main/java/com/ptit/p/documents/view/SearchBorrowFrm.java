@@ -123,7 +123,7 @@ public class SearchBorrowFrm extends JFrame implements ActionListener {
         resultPanel.add(addToCartPanel, BorderLayout.SOUTH);
 
         
-        String[] cartCols = {"STT", "ISBN", "Tên sách", "Tác giả", "Giá (VND)"};
+        String[] cartCols = {"STT", "ISBN", "Tên sách", "Tác giả", "Ngày trả dự kiến"};
         cartModel = new DefaultTableModel(cartCols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -168,7 +168,54 @@ public class SearchBorrowFrm extends JFrame implements ActionListener {
                 });
             }
         } else if (e.getSource() == btnAddToCart) {
-            addBookToCart();
+            int row = tblListBook.getSelectedRow();
+            if (row < 0 || row >= searchResults.size()) return;
+
+            Book selected = searchResults.get(row);
+
+            if (selected.getAvailableCopies() == 0) {
+                JOptionPane.showMessageDialog(this,
+                        "\"" + selected.getTitle() + "\" hiện không còn bản sao khả dụng.",
+                        "Hết sách", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            for (BorrowedBook bb : currentBorrowing.getBooks()) {
+                if (bb.getBook() != null && bb.getBook().getIsbn().equals(selected.getIsbn())) {
+                    JOptionPane.showMessageDialog(this,
+                            "\"" + selected.getTitle() + "\" đã có trong phiếu mượn rồi!",
+                            "Trùng sách", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+
+            LocalDate returnDate;
+            try {
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                returnDate = LocalDate.parse(txtReturnDate.getText().trim(), dtf);
+                if (returnDate.isBefore(LocalDate.now())) {
+                    JOptionPane.showMessageDialog(this,
+                            "Ngày dự kiến trả không được ở trong quá khứ.",
+                            "Lỗi ngày tháng", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Định dạng ngày không hợp lệ. Vui lòng nhập theo định dạng dd/MM/yyyy.",
+                        "Lỗi ngày tháng", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            BorrowedBook bb = new BorrowedBook(selected, returnDate, selected.getPrice());
+            currentBorrowing.getBooks().add(bb);
+
+            int stt = currentBorrowing.getBooks().size();
+            DateTimeFormatter outDtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            cartModel.addRow(new Object[]{
+                    stt, selected.getIsbn(), selected.getTitle(),
+                    selected.getAuthor(), returnDate.format(outDtf)
+            });
+            btnNext.setEnabled(currentBorrowing.getBooks().size() > 0);
         } else if (e.getSource() == btnNext) {
             if (currentBorrowing.getBooks().isEmpty()) {
                 JOptionPane.showMessageDialog(this,
@@ -178,55 +225,5 @@ public class SearchBorrowFrm extends JFrame implements ActionListener {
             }
             new SearchStudentFrm(currentBorrowing).setVisible(true);
         }
-    }
-
-    private void addBookToCart() {
-        int row = tblListBook.getSelectedRow();
-        if (row < 0 || row >= searchResults.size()) return;
-
-        Book selected = searchResults.get(row);
-
-        if (selected.getAvailableCopies() == 0) {
-            JOptionPane.showMessageDialog(this,
-                    "\"" + selected.getTitle() + "\" hiện không còn bản sao khả dụng.",
-                    "Hết sách", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        for (BorrowedBook bb : currentBorrowing.getBooks()) {
-            if (bb.getBook() != null && bb.getBook().getIsbn().equals(selected.getIsbn())) {
-                JOptionPane.showMessageDialog(this,
-                        "\"" + selected.getTitle() + "\" đã có trong phiếu mượn rồi!",
-                        "Trùng sách", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        }
-
-        LocalDate returnDate;
-        try {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            returnDate = LocalDate.parse(txtReturnDate.getText().trim(), dtf);
-            if (returnDate.isBefore(LocalDate.now())) {
-                JOptionPane.showMessageDialog(this,
-                        "Ngày dự kiến trả không được ở trong quá khứ.",
-                        "Lỗi ngày tháng", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Định dạng ngày không hợp lệ. Vui lòng nhập theo định dạng dd/MM/yyyy.",
-                    "Lỗi ngày tháng", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        BorrowedBook bb = new BorrowedBook(selected, returnDate, selected.getPrice());
-        currentBorrowing.getBooks().add(bb);
-
-        int stt = currentBorrowing.getBooks().size();
-        cartModel.addRow(new Object[]{
-                stt, selected.getIsbn(), selected.getTitle(),
-                selected.getAuthor(), String.format("%,.0f", selected.getPrice())
-        });
-        btnNext.setEnabled(currentBorrowing.getBooks().size() > 0);
     }
 }
