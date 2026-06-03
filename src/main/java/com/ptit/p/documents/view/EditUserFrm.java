@@ -86,7 +86,6 @@ public class EditUserFrm extends JFrame implements ActionListener {
 
         pnl.add(pnlGrid);
 
-        // Nút Huỷ và Cập nhật
         btnCancel = new JButton("Hủy");
         btnCancel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btnCancel.setBackground(Color.WHITE);
@@ -167,19 +166,6 @@ public class EditUserFrm extends JFrame implements ActionListener {
                 return;
             }
 
-            if (username.length() < 5 || username.length() > 20) {
-                JOptionPane.showMessageDialog(this, "Tên đăng nhập phải từ 5 đến 20 ký tự!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            if (password.length() < 6 || password.length() > 32) {
-                JOptionPane.showMessageDialog(this, "Mật khẩu phải từ 6 đến 32 ký tự!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            if (!phone.matches("\\d{10}")) {
-                JOptionPane.showMessageDialog(this, "Số điện thoại phải gồm đúng 10 chữ số!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
 
             String roleLower = role.toLowerCase();
             if (!roleLower.equals("admin") && !roleLower.equals("manager") && !roleLower.equals("librarian")) {
@@ -187,14 +173,14 @@ public class EditUserFrm extends JFrame implements ActionListener {
                 return;
             }
 
-            // Gọi lớp User để cập nhật dữ liệu vào thực thể (thông qua các hàm set)
+          
             user.setUsername(username);
             user.setPassword(password);
             user.setFullName(fullName);
             user.setPhone(phone);
             user.setRole(role);
 
-            // Gọi phương thức updateUser() của lớp UserDAO
+            
             UserDAO userDAO = new UserDAO();
             boolean success = userDAO.updateUser(user);
 
