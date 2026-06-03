@@ -18,18 +18,16 @@ import java.util.List;
 import java.time.LocalDate;
 
 public class SearchBorrowingFrm extends JFrame implements ActionListener {
-    private User currentUser;
+    private User u;
     private BorrowingDAO borrowingDAO;
 
     private JTextField txtStudentId;
-    private JTextField txtStudentName;
+    private JTextField txtFullName;
     private JButton btnSearch;
-    private JButton btnClear;
-    private JTable tblResult;
-    private DefaultTableModel tbmResult;
-    // private JButton btnSelect;
+    private JTable tblListBorrowing;
     private JButton btnBack;
-
+   
+    private DefaultTableModel tbmResult;
     private List<Borrowing> searchResults;
 
     
@@ -47,7 +45,7 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
     private BorrowedBook selectedBorrowedBook;
 
     public SearchBorrowingFrm(User user, String mode) {
-        this.currentUser = user;
+        this.u = user;
         this.mode = mode;
         this.borrowingDAO = new BorrowingDAO();
         initComponents();
@@ -76,18 +74,14 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
         pnlSearch.add(txtStudentId, gbc);
 
         gbc.gridx = 2;
-        pnlSearch.add(new JLabel("Tên sinh viên:"), gbc);
-        txtStudentName = new JTextField(15);
+        pnlSearch.add(new JLabel("Họ tên:"), gbc);
+        txtFullName = new JTextField(15);
         gbc.gridx = 3;
-        pnlSearch.add(txtStudentName, gbc);
+        pnlSearch.add(txtFullName, gbc);
 
         btnSearch = new JButton("Tìm kiếm");
         gbc.gridx = 4;
         pnlSearch.add(btnSearch, gbc);
-
-        btnClear = new JButton("Xóa");
-        gbc.gridx = 5;
-        pnlSearch.add(btnClear, gbc);
 
         add(pnlSearch, BorderLayout.NORTH);
 
@@ -99,9 +93,9 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
                 return false;
             }
         };
-        tblResult = new JTable(tbmResult);
-        tblResult.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane scrResult = new JScrollPane(tblResult);
+        tblListBorrowing = new JTable(tbmResult);
+        tblListBorrowing.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane scrResult = new JScrollPane(tblListBorrowing);
 
         
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -159,20 +153,16 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
         btnSearch.setActionCommand("search");
         btnSearch.addActionListener(this);
 
-        // Xử lý sự kiện xóa
-        btnClear.setActionCommand("clear");
-        btnClear.addActionListener(this);
-
         btnBack.setActionCommand("back");
         btnBack.addActionListener(this);
         
         // btnSelect.addActionListener(e -> selectAction());
-        tblResult.addMouseListener(new MouseAdapter() {
+        tblListBorrowing.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent me) {
                 if (me.getClickCount() == 2) {
                     
                     
-                    int selectedRow = tblResult.getSelectedRow();
+                    int selectedRow = tblListBorrowing.getSelectedRow();
                     if (selectedRow < 0) {
                         JOptionPane.showMessageDialog(SearchBorrowingFrm.this,
                                 "Vui lòng chọn một phiếu mượn", "Thông báo",
@@ -183,9 +173,9 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
                     selectedBorrowing = searchResults.get(selectedRow);
 
                     if (mode == "CONFIRM_BORROW") {
-                        new AcceptBorrowingFrm(currentUser, selectedBorrowing).setVisible(true);
+                        new AcceptBorrowingFrm(u, selectedBorrowing).setVisible(true);
                     } else if (mode == "CANCEL_BORROW") {
-                        new ConfirmCancelFrm(selectedBorrowing, currentUser).setVisible(true);
+                        new ConfirmCancelFrm(selectedBorrowing, u).setVisible(true);
                         SearchBorrowingFrm.this.dispose();
                     } else {
                         lblDetailName.setText("Họ tên: " + selectedBorrowing.getStudent().getFullName());
@@ -247,12 +237,12 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
         switch (command) {
             case "search": {
                 String studentId = txtStudentId.getText().trim();
-                String studentName = txtStudentName.getText().trim();
+                String fullName = txtFullName.getText().trim();
 
                 if (mode == "CONFIRM_BORROW" || mode == "CANCEL_BORROW") {
-                    searchResults = borrowingDAO.searchBorrowing(studentId, studentName, "pending");
+                    searchResults = borrowingDAO.searchBorrowing(studentId, fullName, "pending");
                 } else {
-                    searchResults = borrowingDAO.searchBorrowing(studentId, studentName, "borrowed", "overdue");
+                    searchResults = borrowingDAO.searchBorrowing(studentId, fullName, "borrowed", "overdue");
                 }
 
                 tbmResult.setRowCount(0);
@@ -278,12 +268,6 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
                         });
                     }
                 }
-                break;
-            }
-            case "clear": {
-                txtStudentId.setText("");
-                txtStudentName.setText("");
-                tbmResult.setRowCount(0);
                 break;
             }
             case "back": {
@@ -350,7 +334,7 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(this, "Vui lòng chọn một phiếu mượn", "Thông báo", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                new ReturnConfirmFrm(currentUser, selectedBorrowing).setVisible(true);
+                new ReturnConfirmFrm(u, selectedBorrowing).setVisible(true);
                 this.dispose();
                 break;
             }

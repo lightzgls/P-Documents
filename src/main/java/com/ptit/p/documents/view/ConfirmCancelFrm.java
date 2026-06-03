@@ -14,7 +14,7 @@ public class ConfirmCancelFrm extends JFrame implements ActionListener {
 
     private Borrowing b;
     private User      u;
-    private JTextArea outInfo;
+    private JTextArea outCancelInfor;
     private JButton   btnBack;
     private JButton   btnConfirm;
 
@@ -38,13 +38,13 @@ public class ConfirmCancelFrm extends JFrame implements ActionListener {
         setLayout(new BorderLayout(6, 6));
 
         
-        outInfo = new JTextArea(buildInfoText());
-        outInfo.setEditable(false);
-        outInfo.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        outCancelInfor = new JTextArea(buildInfoText());
+        outCancelInfor.setEditable(false);
+        outCancelInfor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
 
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 4, 8));
-        infoPanel.add(new JScrollPane(outInfo), BorderLayout.CENTER);
+        infoPanel.add(new JScrollPane(outCancelInfor), BorderLayout.CENTER);
 
         JLabel lblWarn = new JLabel("Sau khi hủy, thao tác này không thể hoàn tác.");
         lblWarn.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
