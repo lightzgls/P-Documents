@@ -26,7 +26,7 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
     private JButton btnSearch;
     private JTable tblListBorrowing;
     private JButton btnBack;
-   
+    private JButton btnClear;
     private DefaultTableModel tbmResult;
     private List<Borrowing> searchResults;
 
@@ -82,6 +82,15 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
         btnSearch = new JButton("Tìm kiếm");
         gbc.gridx = 4;
         pnlSearch.add(btnSearch, gbc);
+
+        if(mode == "RETURN_BOOK" || mode == "CONFIRM_BORROW") {
+            btnClear = new JButton("Xóa");
+            gbc.gridx = 5;
+            pnlSearch.add(btnClear, gbc);
+
+            btnClear.setActionCommand("clear");
+            btnClear.addActionListener(this);      
+        }
 
         add(pnlSearch, BorderLayout.NORTH);
 
@@ -153,9 +162,12 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
         btnSearch.setActionCommand("search");
         btnSearch.addActionListener(this);
 
+
+
         btnBack.setActionCommand("back");
         btnBack.addActionListener(this);
-        
+
+
         // btnSelect.addActionListener(e -> selectAction());
         tblListBorrowing.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent me) {
@@ -268,6 +280,12 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
                         });
                     }
                 }
+                break;
+            }
+            case "clear": {
+                txtStudentId.setText("");
+                txtFullName.setText("");
+                tbmResult.setRowCount(0);
                 break;
             }
             case "back": {
