@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LibrarianHomeFrm extends JFrame {
-    private User currentUser;
+    private User u;
 
     private JButton btnBookBorrow;
     private JButton btnCancelBorrow;
@@ -17,13 +17,13 @@ public class LibrarianHomeFrm extends JFrame {
     private JButton btnReturnBook;
     private JButton btnLogout;
 
-    public LibrarianHomeFrm(User currentUser) {
-        this.currentUser = currentUser;
+    public LibrarianHomeFrm(User u) {
+        this.u = u;
         initComponents();
     }
 
     private void initComponents() {
-        setTitle("Trang chủ - Thủ thư: " + currentUser.getFullName());
+        setTitle("Trang chủ - Thủ thư: " + u.getFullName());
         setSize(900, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -33,10 +33,10 @@ public class LibrarianHomeFrm extends JFrame {
         JPanel pnlHeader = new JPanel(new BorderLayout());
         pnlHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
         
-        JLabel lblWelcome = new JLabel("Xin chào, " + currentUser.getFullName());
+        JLabel lblWelcome = new JLabel("Xin chào, " + u.getFullName());
         lblWelcome.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         
-        JLabel lblRole = new JLabel("Vai trò: " + currentUser.getRole());
+        JLabel lblRole = new JLabel("Vai trò: " + u.getRole());
         lblRole.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         
         pnlHeader.add(lblWelcome, BorderLayout.WEST);
@@ -88,22 +88,22 @@ public class LibrarianHomeFrm extends JFrame {
 
         
         btnBookBorrow.addActionListener(e -> {
-            new SearchBorrowFrm(currentUser).setVisible(true);
+            new SearchBorrowFrm(u).setVisible(true);
             
         });
 
         btnCancelBorrow.addActionListener(e -> {
-            new SearchBorrowingFrm(currentUser, "CANCEL_BORROW").setVisible(true);
+            new SearchBorrowingFrm(u, "CANCEL_BORROW").setVisible(true);
             
         });
 
         btnConfirmBorrowing.addActionListener(e -> {
-            new SearchBorrowingFrm(currentUser, "CONFIRM_BORROW").setVisible(true);
+            new SearchBorrowingFrm(u, "CONFIRM_BORROW").setVisible(true);
             
         });
 
         btnReturnBook.addActionListener(e -> {
-            new SearchBorrowingFrm(currentUser, "RETURN_BOOK").setVisible(true);
+            new SearchBorrowingFrm(u, "RETURN_BOOK").setVisible(true);
             
         });
 
