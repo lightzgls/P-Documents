@@ -24,109 +24,7 @@ public class BorrowingDAO extends DAO {
         super();
     }
 
-
-
-    public boolean addBorrowing(Borrowing b) {
-        if (b.getBooks() == null || b.getBooks().isEmpty()) {
-            return false;
-        }
-        if (b.getExpectedReceiveDate() != null && b.getExpectedReceiveDate().isBefore(java.time.LocalDate.now())) {
-            return false;
-        }
-        String sqlAddBorrowing = "INSERT INTO tblBorrowing(expectedReceiveDate, note, status, tblStudentID, tblUserID)"
-                + " VALUES(?,?,?,?,?)";
-        String sqlAddBorrowedBook = "INSERT INTO tblBorrowedBook(expectedReturnDate, status, note, price, tblBookItemID, tblBorrowingID)"
-                + " VALUES(?,?,?,?,?,?)";
-
-        boolean result = true;
-        try {
-            getCon().setAutoCommit(false);
-
-            PreparedStatement ps = getCon().prepareStatement(sqlAddBorrowing, Statement.RETURN_GENERATED_KEYS);
-            ps.setDate(1,
-                    b.getExpectedReceiveDate() != null ? java.sql.Date.valueOf(b.getExpectedReceiveDate()) : null);
-            ps.setString(2, b.getNote());
-            ps.setString(3, b.getStatus() != null ? b.getStatus() : "pending");
-            ps.setString(4, b.getStudent().getStudentId());
-            ps.setInt(5, b.getUser().getId());
-            ps.executeUpdate();
-
-            ResultSet generatedKeys = ps.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                b.setId(generatedKeys.getInt(1));
-            } else {
-                getCon().rollback();
-                getCon().setAutoCommit(true);
-                return false;
-            }
-
-            for (BorrowedBook bb : b.getBooks()) {
-                String isbn = (bb.getBook() != null) ? bb.getBook().getIsbn() : null;
-                int bookItemId = -1;
-
-                if (bb.getBookItem() != null && bb.getBookItem().getId() > 0) {
-                    bookItemId = bb.getBookItem().getId();
-                } else if (isbn != null) {
-                    ps = getCon().prepareStatement("SELECT ID FROM tblBookItem"
-                            + " WHERE tblBookISBN = ? AND status = 'good'"
-                            + " AND ID NOT IN ("
-                            + "   SELECT bb.tblBookItemID FROM tblBorrowedBook bb"
-                            + "   JOIN tblBorrowing br ON bb.tblBorrowingID = br.ID"
-                            + "   WHERE br.status IN ('pending','borrowed')"
-                            + " ) LIMIT 1");
-                    ps.setString(1, isbn);
-                    ResultSet rs = ps.executeQuery();
-                    if (rs.next()) {
-                        bookItemId = rs.getInt("ID");
-                    } else {
-                        getCon().rollback();
-                        getCon().setAutoCommit(true);
-                        return false;
-                    }
-                } else {
-                    getCon().rollback();
-                    getCon().setAutoCommit(true);
-                    return false;
-                }
-
-                ps = getCon().prepareStatement(sqlAddBorrowedBook, Statement.RETURN_GENERATED_KEYS);
-                ps.setDate(1,
-                        bb.getExpectedReturnDate() != null ? java.sql.Date.valueOf(bb.getExpectedReturnDate()) : null);
-                ps.setString(2, bb.getStatus() != null ? bb.getStatus() : "good");
-                ps.setString(3, bb.getNote());
-                ps.setDouble(4, bb.getPrice());
-                ps.setInt(5, bookItemId);
-                ps.setInt(6, b.getId());
-                ps.executeUpdate();
-
-                ResultSet bbKeys = ps.getGeneratedKeys();
-                if (bbKeys.next())
-                    bb.setId(bbKeys.getInt(1));
-
-                if (bb.getBookItem() == null) {
-                    BookItem bi = new BookItem();
-                    bi.setId(bookItemId);
-                    bb.setBookItem(bi);
-                }
-            }
-
-            getCon().commit();
-            getCon().setAutoCommit(true);
-
-        } catch (Exception e) {
-            result = false;
-            try {
-                getCon().rollback();
-                getCon().setAutoCommit(true);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    public List<Borrowing> searchBorrowing(String studentId, String studentName, String... statuses) {
+     public List<Borrowing> searchBorrowing(String studentId, String studentName, String... statuses) {
         List<Borrowing> results = new ArrayList<>();
         //find pending status Borrowing
         StringBuilder sql = new StringBuilder();
@@ -253,6 +151,151 @@ public class BorrowingDAO extends DAO {
         return results;
     }
 
+    public boolean addBorrowing(Borrowing b) {
+        if (b.getBooks() == null || b.getBooks().isEmpty()) {
+            return false;
+        }
+        if (b.getExpectedReceiveDate() != null && b.getExpectedReceiveDate().isBefore(java.time.LocalDate.now())) {
+            return false;
+        }
+        String sqlAddBorrowing = "INSERT INTO tblBorrowing(expectedReceiveDate, note, status, tblStudentID, tblUserID)"
+                + " VALUES(?,?,?,?,?)";
+        String sqlAddBorrowedBook = "INSERT INTO tblBorrowedBook(expectedReturnDate, status, note, price, tblBookItemID, tblBorrowingID)"
+                + " VALUES(?,?,?,?,?,?)";
+
+        boolean result = true;
+        try {
+            getCon().setAutoCommit(false);
+
+            PreparedStatement ps = getCon().prepareStatement(sqlAddBorrowing, Statement.RETURN_GENERATED_KEYS);
+            ps.setDate(1,
+                    b.getExpectedReceiveDate() != null ? java.sql.Date.valueOf(b.getExpectedReceiveDate()) : null);
+            ps.setString(2, b.getNote());
+            ps.setString(3, b.getStatus() != null ? b.getStatus() : "pending");
+            ps.setString(4, b.getStudent().getStudentId());
+            ps.setInt(5, b.getUser().getId());
+            ps.executeUpdate();
+
+            ResultSet generatedKeys = ps.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                b.setId(generatedKeys.getInt(1));
+            } else {
+                getCon().rollback();
+                getCon().setAutoCommit(true);
+                return false;
+            }
+
+            for (BorrowedBook bb : b.getBooks()) {
+                String isbn = (bb.getBook() != null) ? bb.getBook().getIsbn() : null;
+                int bookItemId = -1;
+
+                if (bb.getBookItem() != null && bb.getBookItem().getId() > 0) {
+                    bookItemId = bb.getBookItem().getId();
+                } else if (isbn != null) {
+                    ps = getCon().prepareStatement("SELECT ID FROM tblBookItem"
+                            + " WHERE tblBookISBN = ? AND status = 'good'"
+                            + " AND ID NOT IN ("
+                            + "   SELECT bb.tblBookItemID FROM tblBorrowedBook bb"
+                            + "   JOIN tblBorrowing br ON bb.tblBorrowingID = br.ID"
+                            + "   WHERE br.status IN ('pending','borrowed')"
+                            + " ) LIMIT 1");
+                    ps.setString(1, isbn);
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next()) {
+                        bookItemId = rs.getInt("ID");
+                    } else {
+                        getCon().rollback();
+                        getCon().setAutoCommit(true);
+                        return false;
+                    }
+                } else {
+                    getCon().rollback();
+                    getCon().setAutoCommit(true);
+                    return false;
+                }
+
+                ps = getCon().prepareStatement(sqlAddBorrowedBook, Statement.RETURN_GENERATED_KEYS);
+                ps.setDate(1,
+                        bb.getExpectedReturnDate() != null ? java.sql.Date.valueOf(bb.getExpectedReturnDate()) : null);
+                ps.setString(2, bb.getStatus() != null ? bb.getStatus() : "good");
+                ps.setString(3, bb.getNote());
+                ps.setDouble(4, bb.getPrice());
+                ps.setInt(5, bookItemId);
+                ps.setInt(6, b.getId());
+                ps.executeUpdate();
+
+                ResultSet bbKeys = ps.getGeneratedKeys();
+                if (bbKeys.next())
+                    bb.setId(bbKeys.getInt(1));
+
+                if (bb.getBookItem() == null) {
+                    BookItem bi = new BookItem();
+                    bi.setId(bookItemId);
+                    bb.setBookItem(bi);
+                }
+            }
+
+            getCon().commit();
+            getCon().setAutoCommit(true);
+
+        } catch (Exception e) {
+            result = false;
+            try {
+                getCon().rollback();
+                getCon().setAutoCommit(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public boolean cancelBorrowing(int borrowingId) {
+        String sqlCheck = "SELECT status FROM tblBorrowing WHERE ID = ?";
+        String sqlCancel = "UPDATE tblBorrowing SET status = 'cancelled' WHERE ID = ? AND status = 'pending'";
+        String sqlCancelBooks = "UPDATE tblBorrowedBook SET status = 'good' WHERE tblBorrowingID = ?";
+
+        boolean result = true;
+        try {
+            getCon().setAutoCommit(false);
+
+            PreparedStatement ps = getCon().prepareStatement(sqlCheck);
+            ps.setInt(1, borrowingId);
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next() || !"pending".equals(rs.getString("status"))) {
+                getCon().setAutoCommit(true);
+                return false;
+            }
+
+            ps = getCon().prepareStatement(sqlCancel);
+            ps.setInt(1, borrowingId);
+            if (ps.executeUpdate() == 0) {
+                getCon().rollback();
+                getCon().setAutoCommit(true);
+                return false;
+            }
+
+            ps = getCon().prepareStatement(sqlCancelBooks);
+            ps.setInt(1, borrowingId);
+            ps.executeUpdate();
+
+            getCon().commit();
+            getCon().setAutoCommit(true);
+
+        } catch (Exception e) {
+            result = false;
+            try {
+                getCon().rollback();
+                getCon().setAutoCommit(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public ArrayList<Borrowing> searchBorrowing(String key) {
         ArrayList<Borrowing> result = new ArrayList<>();
         String sql = "SELECT br.ID, br.expectedReceiveDate, br.actualReceiveDate,"
@@ -345,54 +388,6 @@ public class BorrowingDAO extends DAO {
         return result;
     }
 
-
-    public boolean cancelBorrowing(int borrowingId) {
-        String sqlCheck = "SELECT status FROM tblBorrowing WHERE ID = ?";
-        String sqlCancel = "UPDATE tblBorrowing SET status = 'cancelled' WHERE ID = ? AND status = 'pending'";
-        String sqlCancelBooks = "UPDATE tblBorrowedBook SET status = 'good' WHERE tblBorrowingID = ?";
-
-        boolean result = true;
-        try {
-            getCon().setAutoCommit(false);
-
-            PreparedStatement ps = getCon().prepareStatement(sqlCheck);
-            ps.setInt(1, borrowingId);
-            ResultSet rs = ps.executeQuery();
-            if (!rs.next() || !"pending".equals(rs.getString("status"))) {
-                getCon().setAutoCommit(true);
-                return false;
-            }
-
-            ps = getCon().prepareStatement(sqlCancel);
-            ps.setInt(1, borrowingId);
-            if (ps.executeUpdate() == 0) {
-                getCon().rollback();
-                getCon().setAutoCommit(true);
-                return false;
-            }
-
-            ps = getCon().prepareStatement(sqlCancelBooks);
-            ps.setInt(1, borrowingId);
-            ps.executeUpdate();
-
-            getCon().commit();
-            getCon().setAutoCommit(true);
-
-        } catch (Exception e) {
-            result = false;
-            try {
-                getCon().rollback();
-                getCon().setAutoCommit(true);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-
-    
     public boolean confirmBorrowing(int borrowingId, java.time.LocalDate actualReceiveDate) {
         String sql = "UPDATE tblBorrowing SET actualReceiveDate = ?, status = ? WHERE ID = ?";
         try (PreparedStatement statement = getCon().prepareStatement(sql)) {
