@@ -182,7 +182,7 @@ public class AcceptBorrowingFrm extends JFrame implements ActionListener {
                     
                     for (BorrowedBook bb : borrowing.getBooks()) {
                         if (bb.getBookItem() != null) {
-                            bookItemDAO.updateStatus(bb.getBookItem().getId(), "borrowed");
+                            bookItemDAO.updateStatus(bb.getBookItem().getId(), "good");
                         }
                     }
 

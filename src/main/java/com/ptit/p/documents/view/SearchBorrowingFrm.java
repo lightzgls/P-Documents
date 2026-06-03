@@ -335,7 +335,7 @@ public class SearchBorrowingFrm extends JFrame implements ActionListener {
                     return;
                 }
                 new ReturnConfirmFrm(u, selectedBorrowing).setVisible(true);
-                this.dispose();
+                // this.dispose();
                 break;
             }
             default:
