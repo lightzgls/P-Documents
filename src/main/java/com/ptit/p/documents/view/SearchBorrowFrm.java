@@ -21,10 +21,6 @@ import java.time.format.DateTimeFormatter;
 
 public class SearchBorrowFrm extends JFrame implements ActionListener {
     
-    private JTextField txtReturnDate;
-    
-    private LocalDate expectedReturnDate;
-
     private User      u;
     private JTextField txtBookName;
     private JTextField txtAuthor;
@@ -32,6 +28,7 @@ public class SearchBorrowFrm extends JFrame implements ActionListener {
     private JTextField txtISBN;
     private JButton    btnSearch;
     private JTable     tblListBook;
+    private JTextField txtReturnDate;
     private JButton    btnAddToCart;
 
     private JTable     tblCart;
@@ -41,7 +38,7 @@ public class SearchBorrowFrm extends JFrame implements ActionListener {
     private DefaultTableModel cartModel;
     private ArrayList<Book>   searchResults = new ArrayList<>();
     private Borrowing         currentBorrowing;
-
+    private LocalDate expectedReturnDate;
     public SearchBorrowFrm(User u) {
         this.u = u;
         LocalDate today = LocalDate.now();
