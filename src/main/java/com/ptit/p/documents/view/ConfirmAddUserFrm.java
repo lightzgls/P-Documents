@@ -41,7 +41,7 @@ public class ConfirmAddUserFrm extends JFrame implements ActionListener {
         lblHeader.setBounds(100, 30, 400, 35);
         pnl.add(lblHeader);
 
-        // Grid panel cho bảng thông tin
+        
         JPanel pnlGrid = new JPanel(new GridLayout(5, 2, 0, 0));
         pnlGrid.setBounds(100, 75, 400, 175);
         pnlGrid.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
@@ -76,7 +76,7 @@ public class ConfirmAddUserFrm extends JFrame implements ActionListener {
 
         pnl.add(pnlGrid);
 
-        // Nút Xác nhận & Quay lại
+        
         btnCancel = new JButton("Quay lại");
         btnCancel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btnCancel.setBackground(Color.WHITE);
@@ -142,13 +142,11 @@ public class ConfirmAddUserFrm extends JFrame implements ActionListener {
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                // Admin click nút OK trên thông báo -> gọi lại lớp UserManageFrm
                 this.dispose();
                 UserManageFrm manageFrm = new UserManageFrm(this.admin);
                 manageFrm.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Tạo tài khoản thất bại! Tên đăng nhập có thể đã tồn tại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                // Quay lại màn hình nhập liệu để Admin sửa
                 this.dispose();
                 AddUserFrm addFrm = new AddUserFrm(this.admin);
                 addFrm.setVisible(true);

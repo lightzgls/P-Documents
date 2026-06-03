@@ -158,19 +158,6 @@ public class AddUserFrm extends JFrame implements ActionListener {
                 return;
             }
 
-            if (username.length() < 5 || username.length() > 20) {
-                JOptionPane.showMessageDialog(this, "Tên đăng nhập phải từ 5 đến 20 ký tự!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            if (password.length() < 6 || password.length() > 32) {
-                JOptionPane.showMessageDialog(this, "Mật khẩu phải từ 6 đến 32 ký tự!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            if (!phone.matches("\\d{10}")) {
-                JOptionPane.showMessageDialog(this, "Số điện thoại phải gồm đúng 10 chữ số!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
 
             String roleLower = role.toLowerCase();
             if (!roleLower.equals("admin") && !roleLower.equals("manager") && !roleLower.equals("librarian")) {
@@ -178,7 +165,6 @@ public class AddUserFrm extends JFrame implements ActionListener {
                 return;
             }
 
-            // Gọi lớp User để thực hiện đóng gói dữ liệu. Các hàm set được gọi.
             User user = new User();
             user.setUsername(username);
             user.setPassword(password);
@@ -186,7 +172,6 @@ public class AddUserFrm extends JFrame implements ActionListener {
             user.setPhone(phone);
             user.setRole(role);
 
-            // Phương thức actionPerformed() gọi lớp ConfirmAddUserFrm
             this.dispose();
             ConfirmAddUserFrm confirmFrm = new ConfirmAddUserFrm(this.admin, user);
             confirmFrm.setVisible(true);

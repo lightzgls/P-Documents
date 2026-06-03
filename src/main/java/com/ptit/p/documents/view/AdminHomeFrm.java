@@ -84,7 +84,6 @@ public class AdminHomeFrm extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnManageUsers) {
-            // Admin click chọn chức năng quản lý tài khoản.
             this.dispose();
             UserManageFrm manageFrm = new UserManageFrm(this.user);
             manageFrm.setVisible(true);
